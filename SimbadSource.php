@@ -6,6 +6,7 @@ use Omnilab\Exception\NotSupportedException;
 use Omnilab\Model\Domain;
 use Omnilab\Model\Entity;
 use Omnilab\Model\Identifier;
+use Omnilab\Model\Identifiers;
 use Omnilab\Model\Property;
 use Omnilab\Model\Quantity;
 use Omnilab\Model\Scheme;
@@ -22,7 +23,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * "HD 39801", "alf Ori" - SIMBAD resolves them); its main identifier, type,
  * ICRS coordinates, proper motion, parallax, radial velocity and redshift,
  * spectral and morphological types, magnitudes, and its other
- * designations; a search by identifier or by name.
+ * designations - its Gaia DR3 one among its identifiers, which
+ * omnilab/gaia reads; a search by identifier or by name.
  *
  * TAP rather than the script interface: one ADQL query joins the object,
  * its identifiers, its magnitudes and its type's description, and the
@@ -210,6 +212,8 @@ final class SimbadSource extends HttpSource
             array_unshift($synonyms, $main);
         }
         $id = Identifier::of(Scheme::SIMBAD, $main);
+        // Its Gaia DR3 designation names the same star in Gaia's catalogue: omnilab/gaia reads it, the Collector offers it.
+        $gaia = array_map(static fn (string $d) => Identifier::tryOf(Scheme::SIMBAD, $d), array_values(array_filter([$main, ...$synonyms], static fn (string $d) => str_starts_with($d, 'Gaia DR3 '))));
 
         return new Entity(
             id: $id,
@@ -219,6 +223,7 @@ final class SimbadSource extends HttpSource
             kind: $type,
             synonyms: \array_slice($synonyms, 0, $this->synonyms),
             properties: $properties,
+            identifiers: new Identifiers($gaia),
             url: $id->url(),
             source: 'simbad',
         );

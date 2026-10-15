@@ -73,9 +73,11 @@ is not a place on the Earth: the core's `Point` is WGS 84), and these properties
 | `magnitude_U`, `_B`, `_V`, `_R`, `_I`, `_J`, `_H`, `_K`, `_G`, `_sdss_u` ... `_sdss_z` | allfluxes: Johnson-Cousins, 2MASS, Gaia G, SDSS | Quantity, mag |
 | `references` | nbref | number |
 
-`identifiers`: its own alone. SIMBAD's designations are of catalogues the core has no scheme
-for (HD, HIP, Gaia DR3, 2MASS, TIC...): they are synonyms, and the source declares no
-`CROSS_REFERENCES`.
+`identifiers`: its own, and its Gaia DR3 designation when SIMBAD gives one (`simbad:Gaia DR3
+5853498713190525696` for Proxima Centauri): the same star in Gaia's catalogue, which omnilab/gaia
+reads - the `Collector` follows a star from SIMBAD into Gaia by it. SIMBAD's other designations are
+of catalogues the core has no scheme for (HD, HIP, Gaia DR2, 2MASS, TIC...): they are synonyms, and
+the source declares no `CROSS_REFERENCES`.
 
 ## The Collector: Betelgeuse from Wikidata
 

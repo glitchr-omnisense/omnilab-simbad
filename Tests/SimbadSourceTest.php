@@ -97,7 +97,7 @@ final class SimbadSourceTest extends TestCase
         self::assertNotContains('Betelgeuse', $star->synonyms);
         self::assertCount(45, $star->synonyms);
         self::assertCount(10, $this->source(null, ['synonyms' => 10])->entity('Betelgeuse')->synonyms);
-        self::assertSame(['simbad:* alf Ori'], $star->identifiers()->keys(), 'no designation of a base the core knows');
+        self::assertSame(['simbad:* alf Ori'], $star->identifiers()->keys(), 'no Gaia DR3 designation in SIMBAD for Betelgeuse: its own alone');
     }
 
     public function testAGalaxyAndAStarNamedByName(): void
@@ -117,6 +117,7 @@ final class SimbadSourceTest extends TestCase
         self::assertSame('768.0665 ± 0.0499 mas', (string) $proxima->property('parallax'));
         self::assertEquals(new Quantity(-3781.741, 'mas/yr'), $proxima->value('proper_motion_ra'));
         self::assertEquals(new Quantity(8.984749, 'mag'), $proxima->value('magnitude_G'));
+        self::assertSame(['simbad:NAME Proxima Centauri', 'simbad:Gaia DR3 5853498713190525696'], $proxima->identifiers()->keys(), 'its Gaia DR3 designation, which omnilab/gaia reads (not DR2\'s)');
     }
 
     public function testAnyIdentifierIsSimbadsToResolve(): void
