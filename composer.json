@@ -1,0 +1,47 @@
+{
+    "name": "omnilab/simbad",
+    "type": "library",
+    "description": "Omnilab SIMBAD: an astronomical object beyond the solar system by any of its identifiers (M31, Betelgeuse, HD 39801...) - its main identifier, object type, ICRS coordinates, proper motion, parallax, radial velocity and redshift, spectral and morphological types, magnitudes and other designations - and a search by identifier or name, through the TAP service of SIMBAD (CDS, Strasbourg) in ADQL, no key needed.",
+    "keywords": [
+        "science",
+        "astronomy",
+        "simbad",
+        "cds",
+        "tap",
+        "adql",
+        "stars",
+        "galaxies",
+        "omnilab"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marco Meyer",
+            "email": "marco.meyer@glitchr.io"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "glitchr/omnilab": "^1.0@dev",
+        "symfony/http-client": "^6.4|^7.0|^8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Omnilab\\Simbad\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Omnilab\\Simbad\\Tests\\": "Tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
