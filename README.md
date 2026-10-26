@@ -1,6 +1,6 @@
 # omnilab/simbad
 
-SIMBAD for [omniscient/omnilab](https://github.com/glitchr-studio/omnilab): an astronomical object
+SIMBAD for [omnisense/omnilab](https://github.com/glitchr-omnisense/omnilab): an astronomical object
 beyond the solar system by any of its identifiers - `M31`, `Betelgeuse`, `HD 39801`, `alf Ori`,
 SIMBAD resolves them - with its main identifier, its type, its ICRS coordinates, proper motion,
 parallax, radial velocity and redshift, its spectral or morphological type, its magnitudes and
