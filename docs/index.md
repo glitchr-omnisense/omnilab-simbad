@@ -1,5 +1,10 @@
 # omnilab/simbad
 
+SIMBAD (CDS, Strasbourg), through its TAP service (`https://simbad.cds.unistra.fr/simbad/sim-tap/`),
+for [omnisense/omnilab](https://github.com/glitchr-omnisense/omnilab): objects beyond the solar
+system by any of their identifiers - type, coordinates, proper motion, parallax, radial velocity,
+redshift, spectral type, magnitudes, designations - as entities; a search of names. No key.
+
 ## Installation
 
 ```sh
@@ -19,6 +24,45 @@ $simbad = (new SimbadSourceFactory($httpClient))->create([
 With the Symfony bundle, the factory is registered as `simbad` when the bundle knows it;
 otherwise register `SimbadSourceFactory` as a service (it is autoconfigured as a
 `SourceFactoryInterface`).
+
+## Credentials
+
+None: SIMBAD is free and without registration. Give `mailto`, the address the CDS writes to before
+it blocks a caller.
+
+## Options
+
+The factory's options, with the defaults it applies (`SimbadSourceFactory`):
+
+| Option | Type | Default | Required | Effect |
+|---|---|---|---|---|
+| `synonyms` | `int` | `50` | no | how many other designations to keep; 0: none |
+| `mailto` | `?string` | null | no | a contact address, in the User-Agent: whom the CDS writes to before it blocks a caller |
+| `user_agent` | `?string` | null | no | the whole User-Agent, in place of the one made from `mailto` |
+| `throttle` | `float` | `0.2` | no | seconds left between two queries: SIMBAD blacklists beyond about five to ten a second |
+| `base_uri` | `string` | `https://simbad.cds.unistra.fr/simbad/sim-tap/` | no | SIMBAD's TAP service (`sync` is joined to it), or a mirror's |
+
+## Capabilities
+
+`capabilities()` answers `entity`, `search`; an operation it does not answer throws `NotSupportedException` before any call.
+
+| Capability | Supported | |
+|---|---|---|
+| `entity` | yes | any identifier SIMBAD knows (`Betelgeuse`, `M31`, `HD 39801`, `simbad:`, a `sim-id` page): one ADQL query; another base's identifier refused before any call |
+| `search` | yes | the object the text identifies, then those whose names hold it, the most referenced first; the first 200 matches, paged by offset here, `total` known below 200; a domain other than astronomy answers an empty page |
+| `series` | no |  |
+| `products` | no |  |
+| `occurrences` | no |  |
+| `datasets` | no |  |
+| `jobs` | no |  |
+| `open` | no |  |
+| `structure` | no |  |
+| `cross_references` | no | none of another base: its other designations (HD, HIP, Gaia DR3...) are synonyms |
+| `forecast` | no |  |
+| `historical` | no |  |
+| `area` | no | a position on the sky is not a place on the Earth: no cone search |
+| `station` | no |  |
+| `cloud_cover` | no |  |
 
 ## Which API: TAP, not the script interface
 
@@ -108,6 +152,51 @@ coordinates' and proper motion's error ellipses and quality letters, the hierarc
 object belongs to), the cone search around a position, the criteria queries and the objects of
 the solar system (SIMBAD has none: see omnilab/jpl) are not read.
 
+## Example
+
+```php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
+use Omnilab\Simbad\SimbadSourceFactory;
+use Omnilab\Source\Query;
+use Symfony\Component\HttpClient\HttpClient;
+
+$simbad = (new SimbadSourceFactory(HttpClient::create()))->create(['mailto' => 'you@example.org', 'synonyms' => 3]);
+
+$betelgeuse = $simbad->entity('alf Ori');
+echo $betelgeuse->label, ' (', $betelgeuse->id, '): ', $betelgeuse->value('object_type'), ', ', $betelgeuse->value('spectral_type'), ', parallax ', $betelgeuse->property('parallax'), ', V ', $betelgeuse->property('magnitude_V'), "\n";
+echo '  also: ', implode(', ', $betelgeuse->synonyms), "\n";
+
+$page = $simbad->search(new Query('andromeda', limit: 3));
+printf("%d objects for \"andromeda\"; the first %d: %s\n", $page->total, count($page), implode(', ', array_map(static fn ($o) => $o->label, $page->items)));
+```
+
+```
+Betelgeuse (simbad:* alf Ori): Red Supergiant, M1-M2Ia-Iab, parallax 6.55 ± 0.83 mas, V 0.42 mag
+  also: * alf Ori, TIC 269273552, GEN# +1.00039801
+42 objects for "andromeda"; the first 3: Andromeda, Andromeda II, Andromeda I
+```
+
+(as answered on 2026-10-27: two queries, 0.2 s apart)
+
+```yaml
+# config/packages/omnilab.yaml
+omnilab:
+    sources:
+        simbad: { factory: simbad, options: { mailto: '%env(OMNILAB_MAILTO)%', synonyms: 50 } }
+```
+
+## Errors
+
+Every call goes through `HttpSource`: a 404 or a 410 (and a 204) is null - an empty page for a list -; a 429 is a `RateLimitedException` (`retryAfter` from `Retry-After`); a 5xx, a time-out or a host that does not answer an `UnavailableException`; any other 4xx a `ProviderException` with its `status` and what the service said; an answer that is not JSON a `ProviderException`, a web page answered for JSON an `UnavailableException`.
+
+SIMBAD's own: an ADQL error is its 400 with a VOTable whose `QUERY_STATUS` says why, read into the
+`ProviderException`'s message. An unknown name is no row, null. Before any call: a string that
+reads as another base's identifier (a Wikidata item, an InChIKey, `jpl.sbdb:433`)
+(`NotSupportedException`).
+
 ## Verified, and not
 
 Against the real service on 2026-10-15 (SIMBAD4 1.8, 22.2 million objects): Betelgeuse by its
@@ -117,6 +206,21 @@ searches for "andromeda" (42 objects), "sirius" (4) and an unknown text; an ADQL
 a VOTable saying why); the Collector's walk above. The fixtures in `Tests/Fixtures/` are its
 answers.
 
+Again on 2026-10-27: Betelgeuse by `alf Ori`, the search for "andromeda" (42 objects; the example
+above).
+
 Not verified: the blacklisting itself (no 429 met; the source stays at five queries a second);
 a mirror's TAP service (`base_uri`); a search whose names match more than 200 objects, of which
 only the first 200 SIMBAD returns are ranked.
+
+## Responsibility
+
+This package is an independent, unofficial client: it is not affiliated with, endorsed by or
+sponsored by the CDS (Université de Strasbourg / CNRS). SIMBAD is free, under the
+[ODbL](https://opendatacommons.org/licenses/odbl/); cite the original papers and acknowledge SIMBAD
+("This research has made use of the SIMBAD database, operated at CDS, Strasbourg, France", Wenger
+et al. 2000), and keep under its rate, as the README's
+[Terms of use](https://github.com/glitchr-omnisense/omnilab-simbad#terms-of-use) says. Whoever runs
+the package is responsible for complying with them and for any use made of what it returns: see
+the README's [Responsibility](https://github.com/glitchr-omnisense/omnilab-simbad#responsibility)
+section.
