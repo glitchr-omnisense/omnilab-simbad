@@ -1,0 +1,56 @@
+{
+    "$schema": "https://github.com/glitchr-omnisense/contracts/blob/1.x/resources/usage-policy.schema.json",
+    "provider": "simbad",
+    "rateLimits": [
+        {
+            "max": 10,
+            "window": "second",
+            "scope": "client-ip",
+            "operations": [],
+            "note": "CDS SIMBAD FAQ: SIMBAD queries limited to 10 a second from a single IP address; more than 10 in one second bans the IP for 1 minute."
+        },
+        {
+            "max": 400,
+            "window": "second",
+            "every": 10,
+            "scope": "client-ip",
+            "operations": [],
+            "note": "CDS SIMBAD FAQ: more than 400 queries in 10 seconds bans the IP for 1 hour."
+        }
+    ],
+    "concurrency": null,
+    "rights": {
+        "commercial": "allowed",
+        "openSourceRequired": null,
+        "caching": {
+            "permission": "allowed",
+            "maxTtl": null
+        },
+        "storage": "allowed",
+        "redistribution": "allowed",
+        "attribution": {
+            "required": true,
+            "text": "This research has made use of the SIMBAD database, CDS, Strasbourg Astronomical Observatory, France",
+            "url": "https://simbad.cds.unistra.fr/simbad/",
+            "where": [
+                "source"
+            ]
+        },
+        "licence": "ODbL-1.0"
+    },
+    "requirements": {
+        "key": false,
+        "userAgent": {
+            "required": false,
+            "pattern": null
+        }
+    },
+    "provenance": {
+        "terms": "https://cds.unistra.fr/legals/",
+        "policy": "https://cds.unistra.fr/help/faq/simbad/",
+        "verifiedAt": null,
+        "declaredBy": "maintainer",
+        "contact": null,
+        "notes": "Every *.unistra.fr host (cds, simbad, vizier) refused or timed out on 2026-11-10 (ECONNREFUSED / timeout), so no CDS page could be read directly; the figures and the ODbL statement come from the search engine's excerpts of the CDS SIMBAD FAQ and a CDS SIMBAD page read that day. To re-read at the source. CDS legals ask datasets to be cited with the CDS service used (\"CDS/SIMBAD\"); the SIMBAD reference is Wenger et al. 2000, A&AS 143, 9; cite the original papers of each value. ODbL: derived databases that are made public must stay under ODbL (share-alike). Astroquery's docs give a looser \"5 to 10 queries a second\" (third party, not used)."
+    }
+}
