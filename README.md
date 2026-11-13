@@ -34,6 +34,30 @@ omnilab:
 With Wikidata configured too, the `Collector` follows a star from one to the other: Wikidata's
 SIMBAD identifier (P3083) leads to SIMBAD, `$collector->collect('wikidata', 'Betelgeuse')`.
 
+## Install and a first call
+
+```sh
+composer require omnilab/simbad
+```
+
+A real call, with no account and no key: Betelgeuse in SIMBAD. `mailto` is your address, sent in the
+User-Agent so that the service can reach you before it blocks a caller; the source keeps to the
+limits its [`policy.json`](policy.json) declares.
+
+```php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
+use Omnilab\Simbad\SimbadSourceFactory;
+
+$simbad = (new SimbadSourceFactory())->create(['mailto' => 'you@example.org']);   // your address, in the User-Agent
+$star = $simbad->entity('Betelgeuse');
+echo $star->id, ' (', $star->kind, '), parallax ', $star->property('parallax'), "\n";
+```
+
+Not run on 2026-11-13: the CDS's services (SIMBAD, VizieR) answered their maintenance page (404) that day.
+
 ## Terms of use
 
 SIMBAD is run by the CDS (Strasbourg astronomical data centre), free and without registration,
